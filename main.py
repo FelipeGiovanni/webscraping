@@ -1,10 +1,9 @@
 from selenium import webdriver
 from time import sleep
 
-
 driver = webdriver.Chrome()
 driver.get('https://www.reclameaqui.com.br/empresa/magazine-luiza-loja-online/')
-sleep(15)
+sleep(2)
 
 def ClosePopup():
     print('localizando PopUp')
@@ -34,13 +33,10 @@ def SelecionaUltimo():
         filter_last = driver.find_elements_by_tag_name('button')
         filter_last[15].text
         filter_last[15].click()
-        sleep(4)
-        ClosePopup()
         sleep(1)
         print("Elementos filtrados. Selecionando o ultimo")
         select_last = driver.find_elements_by_tag_name('h4')
         select_last[0].click()
-        sleep(2)
         ColetaDeDados()
     except:
         print("Erro ao Filtrar elementos. Tentando novamente em 2 segundos...")
@@ -49,25 +45,36 @@ def SelecionaUltimo():
 
 def ColetaDeDados():
     try:
+        sleep(4)
+        ClosePopup()
         print("Selecionando o ultimo. Coletando os dados")
         get_title = driver.find_element_by_tag_name('h1')
         title = get_title.text
+        print(title)
 
         get_status = driver.find_elements_by_tag_name('img')
         status = get_status[8].get_attribute("title")
+        print(status)
 
         get_message = driver.find_elements_by_tag_name('p')
-        message = get_message[12].text
-
-        print('Dados Coletados')
-
-        print(title)
-        print(status)
+        message = get_message[12].text.replace('\n',' ')
         print(message)
+        
+        print('Dados Coletados. Gerando DataFrame...')
+        
+        CreateDataFrame(title, status, message)
 
     except:
         print('*** ERRO NA COLETA DE DADOS. TENTANDO NOVAMENTE ***')
+        sleep(2)
         ColetaDeDados()
 
-AceptCookies()
+def CreateDataFrame(title, status, message):
+    import pandas as pd
+    dados = {'Titulo':[title],
+            'Status': [status],
+            'Mensagem': [message]}
+    dataframe = pd.DataFrame(dados)
+    print(dataframe)
 
+AceptCookies()
